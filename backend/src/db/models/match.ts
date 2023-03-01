@@ -1,4 +1,4 @@
-/** @module Models/Profile */
+/** @module Models/Match*/
 import {
 	BaseEntity,
 	Column,
@@ -6,20 +6,20 @@ import {
 	Entity, JoinTable,
 	ManyToMany,
 	ManyToOne,
-	OneToMany,
 	PrimaryGeneratedColumn,
 	Relation
 } from "typeorm";
+
 import {User} from "./user";
-import {Match} from "./match";
+import {Profile} from "./profile"
 
 /**
- * Profile model - This is for interacting with the profile table
+ * Profile match - This is for match with the profile table
  * Each profile corresponds to exactly 1 pet owned by a User.
  * This allows each user to have many pet profiles without needing to create more accounts
  */
 @Entity()
-export class Profile extends BaseEntity {
+export class Match extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
 
@@ -29,25 +29,33 @@ export class Profile extends BaseEntity {
 	@Column()
 	picture: string;
 
-	@ManyToOne((type) => User, (user: User) => user.profiles, {
-		//adding an IPHistory will also add associated User if it is new, somewhat useless in this example
-		cascade: true,
-		// if we delete a User, also delete their IP History
-		onDelete: "CASCADE"
+    //Matcher
+	@ManyToOne((type) => Profile, (p: Profile) => p.matchers, {
+
+        cascade: true,
+
+        onDelete: "CASCADE"
 	})
-	user: Relation<User>;
+	matcher: Relation<Profile>;
 
-	// Profile: Matcher
-	@OneToMany((type) => Match, (p: Match) => p.matcher)
-	matchers: Relation<Match[]>;
+    //Matchee
+    @ManyToOne((type) => Profile, (p: Profile) => p.matchees, {
 
-	//Profile: Matchee
-	@OneToMany((type) => Match, (p: Match) => p.matchee)
-	matchees: Relation<Match[]>;
+        cascade: true,
+
+        onDelete: "CASCADE"
+	})
+	matchee: Relation<Profile>;
+
+	//Attempt at Bonus Messaages
+	@ManyToOne((type) => Profile, (p: Profile) => p.user)
+	messages: Relation<Profile[]>;
 
 	@CreateDateColumn()
 	created_at: string;
 }
+
+
 
 /*
 TINDER: you are profile1
